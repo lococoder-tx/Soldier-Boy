@@ -8,40 +8,50 @@ public class Player : MonoBehaviour
     [SerializeField] float runSpeed= 6f;
     [SerializeField] float jumpSpeed = 8f;
     [SerializeField] float climbSpeed = 3f;
+    [SerializeField] float rollSpeed = 10f;
+    [SerializeField] int health = 1;
     
     //State
     bool isAlive = true;
     bool playerHasHorizontalSpeed;
     bool playerhasVericalSpeed;
     bool isJumping = false;
+    bool canMove = true;
+    [SerializeField] bool invulnerable = false;
     
     //cached
     Rigidbody2D playerRigidBody;
     Animator myAnimator;
-    Collider2D collider2D;
-
+    CapsuleCollider2D  bodyCollider;
+    BoxCollider2D feetCollider;
     float currentGravity;
 
     void Start()    
     {
         playerRigidBody = GetComponent<Rigidbody2D>();
         myAnimator = GetComponent<Animator>();
-        collider2D = GetComponent<Collider2D>();
+        feetCollider = GetComponent<BoxCollider2D>();
+        bodyCollider = GetComponent<CapsuleCollider2D>();
         currentGravity = playerRigidBody.gravityScale;
     }
 
     void Update()
     {
+       if(isAlive && canMove)
+       {
         //Debug.Log(playerRigidBody.velocity);
-        
+    
         //Bools for state check
         playerHasHorizontalSpeed =  Mathf.Abs(playerRigidBody.velocity.x) > Mathf.Epsilon;
         playerhasVericalSpeed = Mathf.Abs(playerRigidBody.velocity.y) > Mathf.Epsilon;
         
         Run();
+        Tumble();
         Jump();
         ClimbLadder();
-        Debug.Log(isJumping);
+        
+        //Debug.Log(isJumping);
+       }
     
     }
 
@@ -54,9 +64,24 @@ public class Player : MonoBehaviour
        myAnimator.SetBool("isRunning", playerHasHorizontalSpeed && !playerhasVericalSpeed);
     }
 
+    private void Tumble()
+    {
+        if(!feetCollider.IsTouchingLayers(LayerMask.GetMask("Ground", "Hazards")))
+            return;
+        
+        if(Input.GetKeyDown(KeyCode.Z))
+        {
+            canMove = false;
+            float direction = transform.localScale.x;
+            myAnimator.SetTrigger("tumble");
+            playerRigidBody.velocity = new Vector2(0, playerRigidBody.velocity.y);
+            playerRigidBody.velocity = new Vector2(rollSpeed * direction, playerRigidBody.velocity.y);
+            StartCoroutine(invulnerablePeriod(.7f));
+        }
+    }
     private void ClimbLadder()
     {
-        if(!collider2D.IsTouchingLayers(LayerMask.GetMask("Climbable")))
+        if(!feetCollider.IsTouchingLayers(LayerMask.GetMask("Climbable")))
         {
             myAnimator.SetBool("isClimbing", false);
             playerRigidBody.gravityScale = currentGravity;
@@ -69,7 +94,7 @@ public class Player : MonoBehaviour
             Vector2 climbVelocity = new Vector2(playerRigidBody.velocity.x, controlThrow * climbSpeed);
             playerRigidBody.velocity = climbVelocity;
             playerRigidBody.gravityScale = 0f;
-            Debug.Log(playerRigidBody.velocity);
+            //Debug.Log(playerRigidBody.velocity);
             myAnimator.SetBool("isClimbing", playerhasVericalSpeed);
         }
         else
@@ -81,7 +106,7 @@ public class Player : MonoBehaviour
 
     private void Jump()
     {
-        if(!collider2D.IsTouchingLayers(LayerMask.GetMask("Ground")))
+        if(!feetCollider.IsTouchingLayers(LayerMask.GetMask("Ground", "Hazards")))
         {
              return;
         }
@@ -104,7 +129,65 @@ public class Player : MonoBehaviour
         }
     }
 
-    
+    private void OnCollisionEnter2D(Collision2D col)
+    {
+        DamageDealer damageDealer = col.gameObject.GetComponent<DamageDealer>();
+        
+        if(bodyCollider.IsTouchingLayers(LayerMask.GetMask("Enemy")) && damageDealer)
+        {
+                DamagePlayer(damageDealer.getDamage(), true);
+            
+        }
+    }
 
+    private void Die()
+    {
+        if(isAlive)
+        {
+        isAlive = false;
+        myAnimator.SetBool("isDead", true);
+        //Debug.Log(-Mathf.Sign(playerRigidBody.velocity.x) * 25f);
+        playerRigidBody.velocity = new Vector2(-transform.localScale.x * 25f, 10f);
+        }
+    }
+    
+    public void DamagePlayer(int damage, bool pushback)
+    {
+      if(!invulnerable)
+      {
+        health -= damage;
+        if(health <= 0)
+        {
+                Die();
+        }
+        else
+        {
+            canMove = false;
+            myAnimator.SetTrigger("damaged");
+            if(pushback)
+                playerRigidBody.velocity = new Vector2(-transform.localScale.x * 15f, playerRigidBody.velocity.y);
+            StartCoroutine(invulnerablePeriod(2f));
+        }
+      } 
+    }
+    
+    void changeCanMoveTrue()
+    {
+        canMove = true;
+    }
+
+    void changeCanMoveFalse()
+    {
+        canMove = false;
+    }
+
+    IEnumerator invulnerablePeriod(float time)
+    {
+        invulnerable = true;
+        yield return new WaitForSeconds(time);
+        invulnerable = false;
+    }
+
+    
 }
 
