@@ -10,6 +10,7 @@ public class Player : MonoBehaviour
     [SerializeField] float climbSpeed = 3f;
     [SerializeField] float rollSpeed = 10f;
     [SerializeField] int health = 1;
+    [SerializeField] int playerJumpDamage = 1;
     
     //State
     bool isAlive = true;
@@ -18,12 +19,14 @@ public class Player : MonoBehaviour
     bool isJumping = false;
     bool canMove = true;
     [SerializeField] bool invulnerable = false;
+
     
     //cached
     Rigidbody2D playerRigidBody;
     Animator myAnimator;
     CapsuleCollider2D  bodyCollider;
     BoxCollider2D feetCollider;
+    GameSession gameSession;
     float currentGravity;
 
     void Start()    
@@ -33,6 +36,7 @@ public class Player : MonoBehaviour
         feetCollider = GetComponent<BoxCollider2D>();
         bodyCollider = GetComponent<CapsuleCollider2D>();
         currentGravity = playerRigidBody.gravityScale;
+        gameSession = FindObjectOfType<GameSession>();
     }
 
     void Update()
@@ -66,22 +70,22 @@ public class Player : MonoBehaviour
 
     private void Tumble()
     {
-        if(!feetCollider.IsTouchingLayers(LayerMask.GetMask("Ground", "Hazards")))
+        if(!feetCollider.IsTouchingLayers(LayerMask.GetMask("Ground", "Hazard")))
             return;
         
         if(Input.GetKeyDown(KeyCode.Z))
         {
             canMove = false;
+            invulnerable = true;
             float direction = transform.localScale.x;
             myAnimator.SetTrigger("tumble");
             playerRigidBody.velocity = new Vector2(0, playerRigidBody.velocity.y);
             playerRigidBody.velocity = new Vector2(rollSpeed * direction, playerRigidBody.velocity.y);
-            StartCoroutine(invulnerablePeriod(.7f));
         }
     }
     private void ClimbLadder()
     {
-        if(!feetCollider.IsTouchingLayers(LayerMask.GetMask("Climbable")))
+        if(!bodyCollider.IsTouchingLayers(LayerMask.GetMask("Climbable")))
         {
             myAnimator.SetBool("isClimbing", false);
             playerRigidBody.gravityScale = currentGravity;
@@ -106,7 +110,7 @@ public class Player : MonoBehaviour
 
     private void Jump()
     {
-        if(!feetCollider.IsTouchingLayers(LayerMask.GetMask("Ground", "Hazards")))
+        if(!feetCollider.IsTouchingLayers(LayerMask.GetMask("Ground", "Hazard")))
         {
              return;
         }
@@ -132,11 +136,17 @@ public class Player : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D col)
     {
         DamageDealer damageDealer = col.gameObject.GetComponent<DamageDealer>();
+        Enemy enemy = col.gameObject.GetComponent<Enemy>();
         
-        if(bodyCollider.IsTouchingLayers(LayerMask.GetMask("Enemy")) && damageDealer)
+        if( bodyCollider.IsTouchingLayers(LayerMask.GetMask("Enemy")) && damageDealer)
         {
                 DamagePlayer(damageDealer.getDamage(), true);
             
+        }
+
+        if( feetCollider.IsTouchingLayers(LayerMask.GetMask("Enemy")) && enemy)
+        {
+             enemy.DamageEnemy(playerJumpDamage);
         }
     }
 
@@ -148,9 +158,15 @@ public class Player : MonoBehaviour
         myAnimator.SetBool("isDead", true);
         //Debug.Log(-Mathf.Sign(playerRigidBody.velocity.x) * 25f);
         playerRigidBody.velocity = new Vector2(-transform.localScale.x * 25f, 10f);
+        StartCoroutine(delayforGameSessionCall());
         }
     }
     
+    IEnumerator delayforGameSessionCall()
+    {
+        yield return new WaitForSeconds(2f);
+        gameSession.processPlayerDeath();
+    }
     public void DamagePlayer(int damage, bool pushback)
     {
       if(!invulnerable)
@@ -176,18 +192,18 @@ public class Player : MonoBehaviour
         canMove = true;
     }
 
-    void changeCanMoveFalse()
-    {
-        canMove = false;
-    }
-
     IEnumerator invulnerablePeriod(float time)
     {
         invulnerable = true;
         yield return new WaitForSeconds(time);
         invulnerable = false;
+        
     }
 
-    
+    public void changeInvulnerability()
+    {
+        invulnerable = !invulnerable;
+    }
+
 }
 

@@ -53,7 +53,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Script\DamageDealer.cs" />
+     <Compile Include="Assets\Script\Enemy.cs" />
+     <Compile Include="Assets\Script\GameSession.cs" />
+     <Compile Include="Assets\Script\Hazard.cs" />
+     <Compile Include="Assets\Script\LevelExit.cs" />
+     <Compile Include="Assets\Script\LivesDisplay.cs" />
      <Compile Include="Assets\Script\Player.cs" />
+     <Compile Include="Assets\Script\RockSlime.cs" />
+     <Compile Include="Assets\Script\SceneLoader.cs" />
  <Reference Include="Cinemachine">
  <HintPath>C:/Users/elija/Projects/Unity/Soldier-Boy/Library/ScriptAssemblies/Cinemachine.dll</HintPath>
  </Reference>

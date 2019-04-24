@@ -5,7 +5,7 @@ using UnityEngine;
 public class Hazard : MonoBehaviour
 {
       [SerializeField] int damage = 1;
-      private void OnCollisionEnter2D(Collision2D col)
+      private void OnCollisionStay2D(Collision2D col)
       {
           if(col.gameObject.layer == 10)
           {
@@ -13,5 +13,6 @@ public class Hazard : MonoBehaviour
               player.DamagePlayer(damage, false);
 
           }
+          
       }
 }

@@ -71,7 +71,7 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: -990408265
-  m_SortingLayer: 4
+  m_SortingLayer: 3
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300010, guid: 65d96b24b5b53314ea399d85defd2805, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -116,8 +116,8 @@ CapsuleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.03736663, y: -0.013318419}
-  m_Size: {x: 0.4891553, y: 0.7961333}
+  m_Offset: {x: -0.025549412, y: -0.036937714}
+  m_Size: {x: 0.52224445, y: 0.84337187}
   m_Direction: 0
 --- !u!61 &5050801137113137275
 BoxCollider2D:
@@ -132,7 +132,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.027415752, y: -0.43865955}
+  m_Offset: {x: -0.036870003, y: -0.43865955}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -143,7 +143,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.33391476, y: 0.087724924}
+  m_Size: {x: 0.35282326, y: 0.087724924}
   m_EdgeRadius: 0
 --- !u!114 &5050801137113137277
 MonoBehaviour:
@@ -162,6 +162,7 @@ MonoBehaviour:
   climbSpeed: 3
   rollSpeed: 10
   health: 3
+  playerJumpDamage: 1
   invulnerable: 0
 --- !u!50 &4153282887029135420
 Rigidbody2D:

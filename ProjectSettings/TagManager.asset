@@ -17,9 +17,9 @@ TagManager:
   - Climbable
   - Player
   - Background
-  - 
-  - 
-  - 
+  - Hazard
+  - Enemy
+  - Interactables
   - 
   - 
   - 
@@ -44,9 +44,18 @@ TagManager:
   - name: Background
     uniqueID: 373169831
     locked: 0
+  - name: Enemy
+    uniqueID: 3866408183
+    locked: 0
   - name: Player
     uniqueID: 3304559031
     locked: 0
+  - name: Hazards
+    uniqueID: 233902723
+    locked: 0
   - name: Foreground
     uniqueID: 2559514453
+    locked: 0
+  - name: Interactables
+    uniqueID: 3795068595
     locked: 0
